@@ -59,7 +59,7 @@ namespace ZemozSmart.Controllers
                 SerialNumber = serialNumber,
                 Type = type,
                 RemainingScans = 20,
-                ExpiryDate = DateTime.Now.AddDays(20)
+                ExpiryDate = DateTime.MaxValue // No expiration
             };
 
             _context.Cards.Add(card);
@@ -71,6 +71,34 @@ namespace ZemozSmart.Controllers
                 SupporterId = supporter.Id, 
                 SupporterName = supporter.Name,
                 Type = card.Type.ToString()
+            });
+        }
+
+        [HttpPost("refill")]
+        public async Task<IActionResult> RefillCard(string serialNumber, int scansToAdd)
+        {
+            var card = await _context.Cards
+                .Include(c => c.Supporter)
+                .FirstOrDefaultAsync(c => c.SerialNumber == serialNumber);
+
+            if (card == null) return NotFound("Carte non trouvée.");
+
+            card.RemainingScans += scansToAdd;
+            
+            // If the card was blocked because it had 0 scans, unblock it
+            if (card.RemainingScans > 0 && card.IsBlocked)
+            {
+                card.IsBlocked = false;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { 
+                Message = $"Recharge réussie. {scansToAdd} scans ajoutés.", 
+                SerialNumber = card.SerialNumber,
+                NewTotal = card.RemainingScans,
+                Supporter = card.Supporter?.Name,
+                IsBlocked = card.IsBlocked
             });
         }
     }
@@ -98,13 +126,6 @@ namespace ZemozSmart.Controllers
 
             if (card.IsBlocked) 
                 return BadRequest($"Alerte: Le supporter {card.Supporter?.Name} est bloqué.");
-
-            if (card.ExpiryDate < DateTime.Now)
-            {
-                card.IsBlocked = true;
-                await _context.SaveChangesAsync();
-                return BadRequest("La carte a expiré (plus de 20 jours).");
-            }
 
             if (card.RemainingScans <= 0)
             {
@@ -169,6 +190,29 @@ namespace ZemozSmart.Controllers
                 PageSize = pageSize,
                 Data = grouped
             });
+        }
+
+        [HttpGet("stats")]
+        public async Task<IActionResult> GetStats()
+        {
+            var scans = await _context.Scans
+                .Include(s => s.Card)
+                .ToListAsync();
+
+            var stats = scans
+                .GroupBy(s => s.ScanDate.Date)
+                .OrderByDescending(g => g.Key)
+                .Select(g => new {
+                    Date = g.Key.ToShortDateString(),
+                    Total = g.Count(),
+                    ByType = g.GroupBy(s => s.Card?.Type)
+                              .Select(tg => new {
+                                  Type = tg.Key.ToString(),
+                                  Count = tg.Count()
+                              })
+                });
+
+            return Ok(stats);
         }
     }
 }
