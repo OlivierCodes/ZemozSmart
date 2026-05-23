@@ -11,6 +11,7 @@ namespace ZemozSmart.Data
         public DbSet<Card> Cards => Set<Card>();
         public DbSet<Scan> Scans => Set<Scan>();
         public DbSet<Agent> Agents => Set<Agent>();
+        public DbSet<DayClosure> DayClosures => Set<DayClosure>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

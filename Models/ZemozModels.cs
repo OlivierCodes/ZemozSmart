@@ -42,4 +42,11 @@ namespace ZemozSmart.Models
         public string Username { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty; // In a real app, use BCrypt
     }
+
+    public class DayClosure
+    {
+        public int Id { get; set; }
+        public DateTime Date { get; set; }
+        public bool IsClosed { get; set; } = false;
+    }
 }

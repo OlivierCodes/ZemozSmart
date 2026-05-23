@@ -172,6 +172,11 @@ namespace ZemozSmart.Controllers
         [HttpPost("by-serial/{serialNumber}")]
         public async Task<IActionResult> ScanCard(string serialNumber)
         {
+            var today = DateTime.UtcNow.Date;
+            var isClosed = await _context.DayClosures.AnyAsync(d => d.Date == today && d.IsClosed);
+            if (isClosed)
+                return BadRequest("La journée est clôturée. Aucun scan n'est autorisé.");
+
             var card = await _context.Cards
                 .Include(c => c.Supporter)
                 .FirstOrDefaultAsync(c => c.SerialNumber == serialNumber);
@@ -208,6 +213,34 @@ namespace ZemozSmart.Controllers
                 Supporter = card.Supporter?.Name,
                 Type = card.Type.ToString()
             });
+        }
+
+        [HttpPost("toggle-closure")]
+        public async Task<IActionResult> ToggleClosure()
+        {
+            var today = DateTime.UtcNow.Date;
+            var closure = await _context.DayClosures.FirstOrDefaultAsync(d => d.Date == today);
+
+            if (closure == null)
+            {
+                closure = new DayClosure { Date = today, IsClosed = true };
+                _context.DayClosures.Add(closure);
+            }
+            else
+            {
+                closure.IsClosed = !closure.IsClosed;
+            }
+
+            await _context.SaveChangesAsync();
+            return Ok(new { Date = today, IsClosed = closure.IsClosed });
+        }
+
+        [HttpGet("is-closed")]
+        public async Task<ActionResult<bool>> IsDayClosed()
+        {
+            var today = DateTime.UtcNow.Date;
+            var isClosed = await _context.DayClosures.AnyAsync(d => d.Date == today && d.IsClosed);
+            return Ok(isClosed);
         }
 
         [HttpGet("history")]
