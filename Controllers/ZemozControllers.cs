@@ -136,7 +136,7 @@ namespace ZemozSmart.Controllers
 
             // Perform scan
             card.RemainingScans--;
-            var scan = new Scan { CardId = card.Id, ScanDate = DateTime.Now };
+            var scan = new Scan { CardId = card.Id, ScanDate = DateTime.UtcNow };
             _context.Scans.Add(scan);
 
             // If it was the last scan, block it

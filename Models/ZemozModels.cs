@@ -24,7 +24,7 @@ namespace ZemozSmart.Models
         public CardType Type { get; set; }
         public int RemainingScans { get; set; } = 20;
         public bool IsBlocked { get; set; } = false;
-        public DateTime ExpiryDate { get; set; } = DateTime.Now.AddDays(20);
+        public DateTime ExpiryDate { get; set; } = DateTime.UtcNow.AddDays(20);
         public List<Scan> Scans { get; set; } = new();
     }
 
@@ -33,7 +33,7 @@ namespace ZemozSmart.Models
         public int Id { get; set; }
         public int CardId { get; set; }
         public Card? Card { get; set; }
-        public DateTime ScanDate { get; set; } = DateTime.Now;
+        public DateTime ScanDate { get; set; } = DateTime.UtcNow;
     }
 
     public class Agent
