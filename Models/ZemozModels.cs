@@ -10,7 +10,7 @@ namespace ZemozSmart.Models
 
     public enum CardType
     {
-        Assa,
+        Aloba,
         Bossa,
         Amegan
     }

@@ -27,7 +27,7 @@ namespace ZemozSmart.Controllers
 
     public class BulkInitRequest
     {
-        public int AssaDays { get; set; }
+        public int AlobaDays { get; set; }
         public int BossaDays { get; set; }
         public int AmeganDays { get; set; }
     }
@@ -47,13 +47,13 @@ namespace ZemozSmart.Controllers
         [HttpPost("bulk-init")]
         public async Task<IActionResult> BulkInitialize(BulkInitRequest request)
         {
-            int assaCreated = await CreateCardsBatch(CardType.Assa, 150, request.AssaDays);
+            int alobaCreated = await CreateCardsBatch(CardType.Aloba, 150, request.AlobaDays);
             int bossaCreated = await CreateCardsBatch(CardType.Bossa, 50, request.BossaDays);
             int ameganCreated = await CreateCardsBatch(CardType.Amegan, 25, request.AmeganDays);
 
             return Ok(new {
                 Message = "Initialisation terminée.",
-                Assa = assaCreated,
+                Aloba = alobaCreated,
                 Bossa = bossaCreated,
                 Amegan = ameganCreated
             });
@@ -94,7 +94,7 @@ namespace ZemozSmart.Controllers
         [HttpPost("auto-supporter")]
         public async Task<ActionResult<Card>> PostCardWithAutoSupporter(CardType type)
         {
-            // Count existing cards of this type to determine the next SerialNumber (BOSSA-0001, ASSA-0001, ...)
+            // Count existing cards of this type to determine the next SerialNumber (BOSSA-0001, ALOBA-0001, ...)
             int cardCountByType = await _context.Cards.CountAsync(c => c.Type == type);
             string serialNumber = $"{type.ToString().ToUpper()}-{(cardCountByType + 1):D4}";
 

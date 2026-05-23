@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ZemozSmart")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d31864d81345934d60dc32c751b90ce4180de1c1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fa8d41b8aea8449acd205e020e93d73fbb56c0b7")]
 [assembly: System.Reflection.AssemblyProductAttribute("ZemozSmart")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ZemozSmart")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
