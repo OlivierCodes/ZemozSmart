@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ZemozSmart")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bb5ea1847970dee72caa93b7b6d2b6d7ce5a5443")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d31864d81345934d60dc32c751b90ce4180de1c1")]
 [assembly: System.Reflection.AssemblyProductAttribute("ZemozSmart")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ZemozSmart")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

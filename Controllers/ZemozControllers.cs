@@ -25,6 +25,13 @@ namespace ZemozSmart.Controllers
         }
     }
 
+    public class BulkInitRequest
+    {
+        public int AssaDays { get; set; }
+        public int BossaDays { get; set; }
+        public int AmeganDays { get; set; }
+    }
+
     [Authorize]
     [ApiController]
     [Route("api/[controller]")]
@@ -35,6 +42,53 @@ namespace ZemozSmart.Controllers
         public CardsController(ZemozDbContext context)
         {
             _context = context;
+        }
+
+        [HttpPost("bulk-init")]
+        public async Task<IActionResult> BulkInitialize(BulkInitRequest request)
+        {
+            int assaCreated = await CreateCardsBatch(CardType.Assa, 150, request.AssaDays);
+            int bossaCreated = await CreateCardsBatch(CardType.Bossa, 50, request.BossaDays);
+            int ameganCreated = await CreateCardsBatch(CardType.Amegan, 25, request.AmeganDays);
+
+            return Ok(new {
+                Message = "Initialisation terminée.",
+                Assa = assaCreated,
+                Bossa = bossaCreated,
+                Amegan = ameganCreated
+            });
+        }
+
+        private async Task<int> CreateCardsBatch(CardType type, int count, int days)
+        {
+            int created = 0;
+            for (int i = 1; i <= count; i++)
+            {
+                string serialNumber = $"{type.ToString().ToUpper()}-{i:D4}";
+
+                if (await _context.Cards.AnyAsync(c => c.SerialNumber == serialNumber))
+                    continue;
+
+                var supporter = new Supporter
+                {
+                    Name = serialNumber,
+                    PhoneNumber = "00000000"
+                };
+
+                var card = new Card
+                {
+                    Supporter = supporter,
+                    SerialNumber = serialNumber,
+                    Type = type,
+                    RemainingScans = days,
+                    ExpiryDate = DateTime.UtcNow.AddDays(days)
+                };
+
+                _context.Cards.Add(card);
+                created++;
+            }
+            await _context.SaveChangesAsync();
+            return created;
         }
 
         [HttpPost("auto-supporter")]
