@@ -235,4 +235,6 @@ C:\Users\datas\source\repos\ZemozSmart\ZemozSmart\obj\Debug\net9.0\ZemozSmart.cs
 C:\Users\datas\source\repos\ZemozSmart\ZemozSmart\obj\Debug\net9.0\ZemozSmart.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\datas\source\repos\ZemozSmart\ZemozSmart\obj\Debug\net9.0\ZemozSmart.csproj.Up2Date
 C:\Users\datas\source\repos\ZemozSmart\ZemozSmart\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
-C:\Users\datas\source\repos\ZemozSmart\ZemozSmart\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
+C:\Users\datas\source\repos\ZemozSmart\ZemozSmart\obj\Debug\net9.0\ZemozSmart.sourcelink.json
+C:\Users\datas\source\repos\ZemozSmart\ZemozSmart\bin\Debug\net9.0\Npgsql.dll
+C:\Users\datas\source\repos\ZemozSmart\ZemozSmart\bin\Debug\net9.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
