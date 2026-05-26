@@ -3,6 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ZemozSmart.Data;
 using ZemozSmart.Models;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+using QRCoder;
 
 namespace ZemozSmart.Controllers
 {
@@ -22,6 +26,61 @@ namespace ZemozSmart.Controllers
         public async Task<ActionResult<IEnumerable<Supporter>>> GetSupporters()
         {
             return await _context.Supporters.Include(s => s.Cards).ToListAsync();
+        }
+
+        [AllowAnonymous] // Allow public download if needed, or remove if it should be protected
+        [HttpGet("download-pdf")]
+        public async Task<IActionResult> DownloadSupporterPdfs()
+        {
+            var supporters = await _context.Supporters.Include(s => s.Cards).ToListAsync();
+
+            var document = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(1, Unit.Centimetre);
+                    page.PageColor(Colors.White);
+                    page.DefaultTextStyle(x => x.FontSize(12));
+
+                    page.Header().Text("Liste des Supporters").SemiBold().FontSize(20).FontColor(Colors.Blue.Medium);
+
+                    page.Content().PaddingVertical(1, Unit.Centimetre).Column(x =>
+                    {
+                        x.Spacing(10);
+                        foreach (var supporter in supporters)
+                        {
+                            foreach (var card in supporter.Cards)
+                            {
+                                x.Item().Row(row =>
+                                {
+                                    row.RelativeItem().PaddingTop(10).Text($"{card.SerialNumber}").FontSize(16).SemiBold();
+                                    
+                                    row.ConstantItem(100).Height(100).Image(GenerateQrCode(card.SerialNumber));
+                                });
+                                x.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
+                            }
+                        }
+                    });
+
+                    page.Footer().AlignCenter().Text(x =>
+                    {
+                        x.Span("Page ");
+                        x.CurrentPageNumber();
+                    });
+                });
+            });
+
+            byte[] pdfBytes = document.GeneratePdf();
+            return File(pdfBytes, "application/pdf", "Supporters.pdf");
+        }
+
+        private byte[] GenerateQrCode(string text)
+        {
+            using var qrGenerator = new QRCodeGenerator();
+            using var qrCodeData = qrGenerator.CreateQrCode(text, QRCodeGenerator.ECCLevel.Q);
+            using var qrCode = new PngByteQRCode(qrCodeData);
+            return qrCode.GetGraphic(20);
         }
     }
 

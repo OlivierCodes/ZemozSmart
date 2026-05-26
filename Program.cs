@@ -5,6 +5,10 @@ using Microsoft.OpenApi.Models;
 using System;
 using System.Text;
 using ZemozSmart.Data;
+using QuestPDF.Infrastructure;
+
+// Configure QuestPDF License
+QuestPDF.Settings.License = LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 
