@@ -30,9 +30,16 @@ namespace ZemozSmart.Controllers
 
         [AllowAnonymous] // Allow public download if needed, or remove if it should be protected
         [HttpGet("download-pdf")]
-        public async Task<IActionResult> DownloadSupporterPdfs()
+        public async Task<IActionResult> DownloadSupporterPdfs([FromQuery] CardType? type)
         {
-            var supporters = await _context.Supporters.Include(s => s.Cards).ToListAsync();
+            var query = _context.Cards.AsQueryable();
+            
+            if (type.HasValue)
+            {
+                query = query.Where(c => c.Type == type.Value);
+            }
+
+            var allCards = await query.ToListAsync();
 
             var document = Document.Create(container =>
             {
@@ -41,25 +48,35 @@ namespace ZemozSmart.Controllers
                     page.Size(PageSizes.A4);
                     page.Margin(1, Unit.Centimetre);
                     page.PageColor(Colors.White);
-                    page.DefaultTextStyle(x => x.FontSize(12));
+                    page.DefaultTextStyle(x => x.FontSize(10));
 
-                    page.Header().Text("Liste des Supporters").SemiBold().FontSize(20).FontColor(Colors.Blue.Medium);
-
-                    page.Content().PaddingVertical(1, Unit.Centimetre).Column(x =>
+                    page.Header().Row(row =>
                     {
-                        x.Spacing(10);
-                        foreach (var supporter in supporters)
+                        row.RelativeItem().Column(col =>
                         {
-                            foreach (var card in supporter.Cards)
+                            var title = type.HasValue ? $"ZemozSmart - Cartes {type}" : "ZemozSmart - Toutes les Cartes";
+                            col.Item().Text(title).SemiBold().FontSize(20).FontColor(Colors.Blue.Medium);
+                            col.Item().Text($"{DateTime.Now:dd/MM/yyyy HH:mm}");
+                        });
+                    });
+
+                    page.Content().PaddingVertical(0.5f, Unit.Centimetre).Table(table =>
+                    {
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn();
+                            columns.RelativeColumn();
+                            columns.RelativeColumn();
+                        });
+
+                        foreach (var card in allCards)
+                        {
+                            table.Cell().Padding(5).Border(1).BorderColor(Colors.Grey.Lighten3).Column(col =>
                             {
-                                x.Item().Row(row =>
-                                {
-                                    row.RelativeItem().PaddingTop(10).Text($"{card.SerialNumber}").FontSize(16).SemiBold();
-                                    
-                                    row.ConstantItem(100).Height(100).Image(GenerateQrCode(card.SerialNumber));
-                                });
-                                x.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
-                            }
+                                col.Item().AlignCenter().Text(card.SerialNumber).FontSize(12).SemiBold();
+                                col.Item().AlignCenter().Height(80).Width(80).Image(GenerateQrCode(card.SerialNumber));
+                                col.Item().AlignCenter().Text(card.Type.ToString()).FontSize(8).FontColor(Colors.Grey.Medium);
+                            });
                         }
                     });
 
@@ -67,12 +84,15 @@ namespace ZemozSmart.Controllers
                     {
                         x.Span("Page ");
                         x.CurrentPageNumber();
+                        x.Span(" / ");
+                        x.TotalPages();
                     });
                 });
             });
 
             byte[] pdfBytes = document.GeneratePdf();
-            return File(pdfBytes, "application/pdf", "Supporters.pdf");
+            string fileName = type.HasValue ? $"Supporters_{type}_{DateTime.Now:yyyyMMdd}.pdf" : $"Supporters_All_{DateTime.Now:yyyyMMdd}.pdf";
+            return File(pdfBytes, "application/pdf", fileName);
         }
 
         private byte[] GenerateQrCode(string text)

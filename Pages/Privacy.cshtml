@@ -1,14 +1,26 @@
 ﻿@page
 @model PrivacyModel
 @{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = "Administration des Supporters";
 }
 <h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<p>Gestion des impressions de cartes et codes QR.</p>
 
 <div class="mt-4">
-    <a href="/api/Supporters/download-pdf" class="btn btn-primary">
-        Télécharger la liste des supporters (PDF)
-    </a>
+    <h3>Téléchargement des Cartes (PDF)</h3>
+    <div class="d-flex flex-wrap gap-2">
+        <a href="/api/Supporters/download-pdf" class="btn btn-primary">
+            Toutes les cartes
+        </a>
+        <a href="/api/Supporters/download-pdf?type=Aloba" class="btn btn-outline-primary">
+            Cartes ALOBA
+        </a>
+        <a href="/api/Supporters/download-pdf?type=Bossa" class="btn btn-outline-primary">
+            Cartes BOSSA
+        </a>
+        <a href="/api/Supporters/download-pdf?type=Amegan" class="btn btn-outline-primary">
+            Cartes AMEGAN
+        </a>
+    </div>
 </div>
