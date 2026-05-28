@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using ZemozSmart.Data;
 using ZemozSmart.Models;
@@ -7,6 +8,7 @@ using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using QRCoder;
+using System.IO;
 
 namespace ZemozSmart.Controllers
 {
@@ -16,10 +18,12 @@ namespace ZemozSmart.Controllers
     public class SupportersController : ControllerBase
     {
         private readonly ZemozDbContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public SupportersController(ZemozDbContext context)
+        public SupportersController(ZemozDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         [HttpGet]
@@ -50,42 +54,38 @@ namespace ZemozSmart.Controllers
                     page.PageColor(Colors.White);
                     page.DefaultTextStyle(x => x.FontSize(10));
 
-                    page.Header().Row(row =>
-                    {
-                        row.RelativeItem().Column(col =>
-                        {
-                            var title = type.HasValue ? $"ZemozSmart - Cartes {type}" : "ZemozSmart - Toutes les Cartes";
-                            col.Item().Text(title).SemiBold().FontSize(20).FontColor(Colors.Blue.Medium);
-                            col.Item().Text($"{DateTime.Now:dd/MM/yyyy HH:mm}");
-                        });
-                    });
-
                     page.Content().PaddingVertical(0.5f, Unit.Centimetre).Table(table =>
                     {
                         table.ColumnsDefinition(columns =>
                         {
                             columns.RelativeColumn();
                             columns.RelativeColumn();
-                            columns.RelativeColumn();
                         });
 
                         foreach (var card in allCards)
                         {
-                            table.Cell().Padding(5).Border(1).BorderColor(Colors.Grey.Lighten3).Column(col =>
+                            var assetName = card.Type.ToString().ToLower() + ".jpeg";
+                            var assetPath = Path.Combine(_env.WebRootPath, "assets", assetName);
+
+                            table.Cell().Padding(10).Layers(layers =>
                             {
-                                col.Item().AlignCenter().Text(card.SerialNumber).FontSize(12).SemiBold();
-                                col.Item().AlignCenter().Height(80).Width(80).Image(GenerateQrCode(card.SerialNumber));
-                                col.Item().AlignCenter().Text(card.Type.ToString()).FontSize(8).FontColor(Colors.Grey.Medium);
+                                if (System.IO.File.Exists(assetPath))
+                                {
+                                    layers.PrimaryLayer().Image(assetPath);
+                                }
+                                else
+                                {
+                                    layers.PrimaryLayer().Background(Colors.Grey.Lighten3);
+                                }
+
+                                layers.Layer().AlignCenter().AlignMiddle().PaddingTop(10).Column(col =>
+                                {
+                                    col.Item().AlignCenter().Height(80).Width(80).Image(GenerateQrCode(card.SerialNumber));
+                                    col.Item().AlignCenter().Text(card.SerialNumber).FontSize(14).SemiBold().FontColor(Colors.White);
+                                    col.Item().AlignCenter().Text(card.Type.ToString().ToUpper()).FontSize(10).SemiBold().FontColor(Colors.White);
+                                });
                             });
                         }
-                    });
-
-                    page.Footer().AlignCenter().Text(x =>
-                    {
-                        x.Span("Page ");
-                        x.CurrentPageNumber();
-                        x.Span(" / ");
-                        x.TotalPages();
                     });
                 });
             });
