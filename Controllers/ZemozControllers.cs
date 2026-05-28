@@ -69,7 +69,7 @@ namespace ZemozSmart.Controllers
 
                             table.Cell().Padding(5).Layers(layers =>
                             {
-                                // 1. Fond : L'image du modèle de carte
+                                // 1. L'image de base (Modèle avec placeholders)
                                 if (System.IO.File.Exists(assetPath))
                                 {
                                     layers.PrimaryLayer().Image(assetPath);
@@ -79,13 +79,22 @@ namespace ZemozSmart.Controllers
                                     layers.PrimaryLayer().Background(Colors.Grey.Lighten3);
                                 }
 
-                                // 2. Overlay : Code QR dynamique (masque le placeholder par un fond blanc)
-                                // Note: Ajustez le Padding ou l'alignement si le QR n'est pas au centre du modèle
-                                layers.Layer().AlignCenter().AlignMiddle().PaddingBottom(10).Width(70).Height(70).Background(Colors.White).Image(GenerateQrCode(card.SerialNumber));
+                                // 2. Remplacement du Code QR (Centré)
+                                // On applique un fond blanc pour masquer l'ancien QR
+                                layers.Layer().AlignCenter().AlignMiddle().PaddingBottom(10)
+                                    .Width(65).Height(65)
+                                    .Background(Colors.White) 
+                                    .Image(GenerateQrCode(card.SerialNumber));
 
-                                // 3. Overlay : Numéro de série (masque le placeholder par un fond blanc ou coloré)
-                                // Note: Ajustez la position selon votre modèle (ici en bas au centre)
-                                layers.Layer().AlignBottom().AlignCenter().PaddingBottom(15).Background(Colors.White).PaddingHorizontal(8).Text(card.SerialNumber).FontSize(12).SemiBold().FontColor(Colors.Black);
+                                // 3. Remplacement du Numéro d'ordre (Bas)
+                                // On utilise un fond blanc pour masquer l'ancien texte ALOBA-000x
+                                layers.Layer().AlignBottom().AlignCenter().PaddingBottom(22)
+                                    .Background(Colors.White)
+                                    .PaddingHorizontal(10)
+                                    .Text(card.SerialNumber)
+                                    .FontSize(11)
+                                    .SemiBold()
+                                    .FontColor(Colors.Black);
                             });
                         }
                     });
