@@ -67,8 +67,9 @@ namespace ZemozSmart.Controllers
                             var assetName = card.Type.ToString().ToLower() + ".jpeg";
                             var assetPath = Path.Combine(_env.WebRootPath, "assets", assetName);
 
-                            table.Cell().Padding(10).Layers(layers =>
+                            table.Cell().Padding(5).Layers(layers =>
                             {
+                                // 1. Fond : L'image du modèle de carte
                                 if (System.IO.File.Exists(assetPath))
                                 {
                                     layers.PrimaryLayer().Image(assetPath);
@@ -78,12 +79,13 @@ namespace ZemozSmart.Controllers
                                     layers.PrimaryLayer().Background(Colors.Grey.Lighten3);
                                 }
 
-                                layers.Layer().AlignCenter().AlignMiddle().PaddingTop(10).Column(col =>
-                                {
-                                    col.Item().AlignCenter().Height(80).Width(80).Image(GenerateQrCode(card.SerialNumber));
-                                    col.Item().AlignCenter().Text(card.SerialNumber).FontSize(14).SemiBold().FontColor(Colors.White);
-                                    col.Item().AlignCenter().Text(card.Type.ToString().ToUpper()).FontSize(10).SemiBold().FontColor(Colors.White);
-                                });
+                                // 2. Overlay : Code QR dynamique (masque le placeholder par un fond blanc)
+                                // Note: Ajustez le Padding ou l'alignement si le QR n'est pas au centre du modèle
+                                layers.Layer().AlignCenter().AlignMiddle().PaddingBottom(10).Width(70).Height(70).Background(Colors.White).Image(GenerateQrCode(card.SerialNumber));
+
+                                // 3. Overlay : Numéro de série (masque le placeholder par un fond blanc ou coloré)
+                                // Note: Ajustez la position selon votre modèle (ici en bas au centre)
+                                layers.Layer().AlignBottom().AlignCenter().PaddingBottom(15).Background(Colors.White).PaddingHorizontal(8).Text(card.SerialNumber).FontSize(12).SemiBold().FontColor(Colors.Black);
                             });
                         }
                     });
