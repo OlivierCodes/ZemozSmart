@@ -79,22 +79,32 @@ namespace ZemozSmart.Controllers
                                     layers.PrimaryLayer().Background(Colors.Grey.Lighten3);
                                 }
 
-                                // 2. Remplacement du Code QR (Centré)
-                                // On applique un fond blanc pour masquer l'ancien QR
+                                // 2. Masquage des anciens éléments (Milieu) et placement des nouveaux (Droite)
+                                // On masque l'ancien QR au milieu
                                 layers.Layer().AlignCenter().AlignMiddle().PaddingBottom(10)
+                                    .Width(65).Height(65)
+                                    .Background(Colors.White);
+
+                                // On place l'unique QR à droite (à la place de l'ancien marqué en blanc)
+                                layers.Layer().AlignRight().AlignMiddle().PaddingBottom(10).PaddingRight(15)
                                     .Width(65).Height(65)
                                     .Background(Colors.White) 
                                     .Image(GenerateQrCode(card.SerialNumber));
 
-                                // 3. Remplacement du Numéro d'ordre (Bas)
-                                // On utilise un fond blanc pour masquer l'ancien texte ALOBA-000x
-                                layers.Layer().AlignBottom().AlignCenter().PaddingBottom(22)
-                                    .Background(Colors.White)
+                                // 3. Remplacement du Numéro d'ordre unique
+                                // On masque l'ancien numéro au milieu
+                                layers.Layer().AlignCenter().AlignBottom().PaddingBottom(22)
+                                    .Width(75).Height(15)
+                                    .Background(Colors.White);
+
+                                // On place l'unique numéro à droite dans la bande noire (blanc sur noir)
+                                layers.Layer().AlignRight().AlignBottom().PaddingBottom(22).PaddingRight(15)
+                                    .Background(Colors.Black)
                                     .PaddingHorizontal(10)
                                     .Text(card.SerialNumber)
                                     .FontSize(11)
                                     .SemiBold()
-                                    .FontColor(Colors.Black);
+                                    .FontColor(Colors.White);
                             });
                         }
                     });
